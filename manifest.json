@@ -1,0 +1,13 @@
+{
+  "domain": "idfm",
+  "name": "Ile de france Mobilite",
+  "documentation": "https://github.com/droso-hass/idfm",
+  "issue_tracker": "https://github.com/droso-hass/idfm/issues",
+  "dependencies": [],
+  "config_flow": true,
+  "codeowners": ["@drosocode"],
+  "requirements": [
+    "idfm-api"
+  ],
+  "version": "1.0.0"
+}

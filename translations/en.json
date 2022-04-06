@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Transport Type",
+        "description": "Select the transport type",
+        "data": {
+          "transport_mode": "Transport"
+        }
+      },
+      "line": {
+        "title": "Transport Line",
+        "description": "Select the transport line",
+        "data": {
+          "transport_line": "Transport Line"
+        }
+      },
+      "stop": {
+        "title": "Transport Stop Area",
+        "description": "Select the transport stop",
+        "data": {
+          "stop_area": "Transport"
+        }
+      },
+      "direction": {
+        "title": "Transport Direction",
+        "description": "Select the transport direction",
+        "data": {
+          "direction": "Transport"
+        }
+      }
+    },
+    "error": {},
+    "abort": {}
+  }
+}

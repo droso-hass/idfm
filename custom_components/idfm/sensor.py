@@ -1,5 +1,5 @@
 """Sensor platform for IDFM Integration"""
-from .const import DEFAULT_NAME, DOMAIN, ICON, DATA_TRAFFIC
+from .const import DEFAULT_NAME, DOMAIN, ICON, DATA_TRAFFIC, ATTR_TRAFFIC_FORWARD, ATTR_TRAFFIC_DIRECTION
 from .entity import IDFMEntity
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
@@ -29,6 +29,7 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     def __init__(self, coordinator, config_entry, num):
         super().__init__(coordinator, config_entry)
         self.num = num
+        self._attrs = {}
 
 
     @property
@@ -40,10 +41,16 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     def name(self):
         """Return the name of the sensor."""
         return f"{DEFAULT_NAME}_next_{self.num}"
+
+    
+    @property
+    def icon(self):
+        """Icon to use in the frontend."""
+        return 'mdi:train'
         
     @property
     def device_class(self):
-        """Return the class of this binary_sensor."""
+        """Return the class of this sensor."""
         return SensorDeviceClass.TIMESTAMP
 
     @property
@@ -61,3 +68,15 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     def device_class(self):
         """Return de device class of the sensor."""
         return "timestamp"
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        if self.num < len(self.coordinator.data[DATA_TRAFFIC]):
+            self._attrs.update(
+                {
+                    ATTR_TRAFFIC_FORWARD: self.coordinator.data[DATA_TRAFFIC][self.num].forward,
+                    ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][self.num].direction
+                }
+            )
+        return self._attrs

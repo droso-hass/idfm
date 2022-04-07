@@ -35,6 +35,9 @@ ATTR_INFO_TYPE = "type"
 ATTR_INFO_START_TIME = "start_time"
 ATTR_INFO_END_TIME = "end_time"
 
+ATTR_TRAFFIC_FORWARD = "forward"
+ATTR_TRAFFIC_DIRECTION = "direction"
+
 
 STARTUP_MESSAGE = f"""
 -------------------------------------------------------------------

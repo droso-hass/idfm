@@ -1,8 +1,6 @@
 # Ile de france mobilités integration for Home Assistant
 
-[![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE)
-[![hacs][hacsbadge]][hacs]
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 Allows to retreive next schedules for a stations on a specific line and traffic informations for a line. Metro, RER, Transilien, Tram and BUS are supported.
 

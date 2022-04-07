@@ -49,7 +49,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_TRANSPORT,
                         default=user_input.get(CONF_TRANSPORT) or transports[0],
-                    ): vol.In(transports)
+                    ): vol.In(sorted(transports))
                 }
             ),
             errors={},
@@ -77,7 +77,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_LINE,
                         default=user_input.get(CONF_LINE) or names[0],
-                    ): vol.In(names)
+                    ): vol.In(sorted(names))
                 }
             ),
             errors={},
@@ -105,7 +105,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_STOP,
                         default=user_input.get(CONF_STOP) or names[0],
-                    ): vol.In(names)
+                    ): vol.In(sorted(names))
                 }
             ),
             errors={},
@@ -122,7 +122,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             # User is done adding repos, create the config entry.
             return self.async_create_entry(title=DEFAULT_NAME, data=self.data)
 
-        directions = await self._client.get_directions(self.data[CONF_LINE])
+        directions = await self._client.get_directions(self.data[CONF_LINE], self.data[CONF_STOP])
         directions.append("any")
 
         return self.async_show_form(
@@ -132,7 +132,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_DIRECTION,
                         default=user_input.get(CONF_DIRECTION) or directions[0],
-                    ): vol.In(directions)
+                    ): vol.In(sorted(directions))
                 }
             ),
             errors={},

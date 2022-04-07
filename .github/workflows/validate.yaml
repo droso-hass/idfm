@@ -14,7 +14,6 @@ jobs:
         uses: "hacs/action@main"
         with:
           category: integration
-          ignore: brands
 
       - name: HASS validation
         uses: "home-assistant/actions/hassfest@master"

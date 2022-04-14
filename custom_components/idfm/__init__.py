@@ -14,14 +14,21 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from idfm_api import IDFMApi
-from .const import CONF_LINE, CONF_DIRECTION, CONF_STOP, DOMAIN, PLATFORMS, STARTUP_MESSAGE, DATA_TRAFFIC, DATA_INFO
+from .const import (
+    CONF_LINE,
+    CONF_DIRECTION,
+    CONF_STOP,
+    DOMAIN,
+    PLATFORMS,
+    STARTUP_MESSAGE,
+    DATA_TRAFFIC,
+    DATA_INFO,
+)
 
 SCAN_INTERVAL = timedelta(seconds=60)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
-
-#https://github.com/home-assistant/core/tree/dev/homeassistant/components/pi_hole
 
 async def async_setup(hass: HomeAssistant, config: Config):
     """Set up this integration using YAML is not supported."""
@@ -38,11 +45,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     direction = entry.data.get(CONF_DIRECTION)
     stop_area_id = entry.data.get(CONF_STOP)
 
-
     session = async_get_clientsession(hass)
     client = IDFMApi(session)
 
-    coordinator = IDFMDataUpdateCoordinator(hass, client=client, line_id=line_id, stop_area_id=stop_area_id, direction=direction)
+    coordinator = IDFMDataUpdateCoordinator(
+        hass,
+        client=client,
+        line_id=line_id,
+        stop_area_id=stop_area_id,
+        direction=direction,
+    )
     await coordinator.async_refresh()
 
     if not coordinator.last_update_success:
@@ -70,7 +82,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         client: IDFMApi,
         line_id: str,
         stop_area_id: str,
-        direction: str
+        direction: str,
     ) -> None:
         """Initialize."""
         self.api = client
@@ -81,14 +93,15 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
 
-    
     async def async_update(self):
         await self._async_update_data()
 
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            tr = await self.api.get_traffic(self.line_id, self.stop_area_id, self.direction)
+            tr = await self.api.get_traffic(
+                self.line_id, self.stop_area_id, self.direction
+            )
             inf = await self.api.get_infos(self.line_id)
             return {DATA_TRAFFIC: tr, DATA_INFO: inf}
         except Exception as exception:

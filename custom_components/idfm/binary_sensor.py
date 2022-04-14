@@ -1,15 +1,22 @@
 """Binary sensor platform for IDFM Integration"""
-from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
+from homeassistant.components.binary_sensor import (
+    BinarySensorEntity,
+    BinarySensorDeviceClass,
+)
 
-from .const import DEFAULT_NAME, DOMAIN, DATA_INFO, ATTR_INFO_DESC, ATTR_INFO_END_TIME, ATTR_INFO_SEVERITY, ATTR_INFO_START_TIME, ATTR_INFO_TYPE
+from .const import (
+    CONF_LINE_NAME,
+    CONF_STOP_NAME,
+    DOMAIN,
+    DATA_INFO,
+    ATTR_INFO_DESC,
+    ATTR_INFO_END_TIME,
+    ATTR_INFO_SEVERITY,
+    ATTR_INFO_START_TIME,
+    ATTR_INFO_TYPE,
+)
 from .entity import IDFMEntity
 from datetime import datetime
-
-"""
-async def async_setup_entry(hass, entry, async_add_devices):
-    coordinator = hass.data[DOMAIN]
-    async_add_devices([IDFMBinarySensor(coordinator, entry)])
-"""
 
 async def async_setup_entry(
     hass,
@@ -18,13 +25,12 @@ async def async_setup_entry(
 ) -> None:
     """Setup binary_sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        [IDFMBinarySensor(coordinator, entry)], True
-    )
+    async_add_entities([IDFMBinarySensor(coordinator, entry)], True)
 
 
 class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
     """IDFM binary_sensor class."""
+
     def __init__(
         self,
         coordinator,
@@ -37,7 +43,12 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
     @property
     def name(self):
         """Return the name of the binary_sensor."""
-        return f"{DEFAULT_NAME}_status"
+        return (
+            self.config_entry.data[CONF_LINE_NAME]
+            + " ["
+            + self.config_entry.data[CONF_STOP_NAME]
+            + "]"
+        )
 
     @property
     def device_class(self):
@@ -66,7 +77,7 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
         if len(lst) == 0:
             lst = self.coordinator.data[DATA_INFO]
 
-        lst.sort(key = lambda x: x.severity.value)
+        lst.sort(key=lambda x: x.severity.value)
 
         if len(lst) > 0:
             data = lst[-1]
@@ -76,7 +87,7 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                     ATTR_INFO_END_TIME: data.end_time,
                     ATTR_INFO_SEVERITY: data.severity.value,
                     ATTR_INFO_START_TIME: data.start_time,
-                    ATTR_INFO_TYPE: data.type
+                    ATTR_INFO_TYPE: data.type,
                 }
             )
         else:
@@ -86,7 +97,7 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                     ATTR_INFO_END_TIME: None,
                     ATTR_INFO_SEVERITY: 0,
                     ATTR_INFO_START_TIME: None,
-                    ATTR_INFO_TYPE: ""
+                    ATTR_INFO_TYPE: "",
                 }
             )
 

@@ -8,10 +8,16 @@ from aiohttp import ClientSession
 
 from idfm_api import IDFMApi
 from idfm_api.models import TransportType
-from .const import CONF_LINE, CONF_DIRECTION, CONF_STOP, CONF_TRANSPORT, DOMAIN, DEFAULT_NAME
+from .const import (
+    CONF_LINE,
+    CONF_LINE_NAME,
+    CONF_DIRECTION,
+    CONF_STOP,
+    CONF_STOP_NAME,
+    CONF_TRANSPORT,
+    DOMAIN,
+)
 
-import logging
-_LOGGER: logging.Logger = logging.getLogger(__package__)
 # select transport type > select line > select stop > select direction
 
 
@@ -23,7 +29,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         """Initialize."""
-        #self._session = async_get_clientsession(self.hass)
+        # self._session = async_get_clientsession(self.hass)
         self._session = ClientSession()
         self._client = IDFMApi(self._session)
         self.data = {}
@@ -66,6 +72,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             for l in lines:
                 if l.name == user_input[CONF_LINE]:
                     self.data[CONF_LINE] = l.id
+                    self.data[CONF_LINE_NAME] = l.name
                     return await self.async_step_stop()
 
         names = [l.name for l in lines]
@@ -94,6 +101,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             for s in stops:
                 if s.name == user_input[CONF_STOP]:
                     self.data[CONF_STOP] = s.id
+                    self.data[CONF_STOP_NAME] = s.name
                     return await self.async_step_direction()
 
         names = [s.name for s in stops]
@@ -117,12 +125,19 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             user_input = {}
 
         if CONF_DIRECTION in user_input:
-            self.data[CONF_DIRECTION] = None if user_input[CONF_DIRECTION] == "any" else user_input[CONF_DIRECTION]
+            self.data[CONF_DIRECTION] = (
+                None
+                if user_input[CONF_DIRECTION] == "any"
+                else user_input[CONF_DIRECTION]
+            )
+            return self.async_create_entry(
+                title=self.data[CONF_LINE_NAME] + " - " + self.data[CONF_STOP_NAME],
+                data=self.data,
+            )
 
-            # User is done adding repos, create the config entry.
-            return self.async_create_entry(title=DEFAULT_NAME, data=self.data)
-
-        directions = await self._client.get_directions(self.data[CONF_LINE], self.data[CONF_STOP])
+        directions = await self._client.get_directions(
+            self.data[CONF_LINE], self.data[CONF_STOP]
+        )
         directions.append("any")
 
         return self.async_show_form(

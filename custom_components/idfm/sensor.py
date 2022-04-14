@@ -1,15 +1,17 @@
 """Sensor platform for IDFM Integration"""
-from .const import DEFAULT_NAME, DOMAIN, ICON, DATA_TRAFFIC, ATTR_TRAFFIC_FORWARD, ATTR_TRAFFIC_DIRECTION
+from .const import (
+    CONF_DIRECTION,
+    CONF_STOP_NAME,
+    DOMAIN,
+    ICON,
+    DATA_TRAFFIC,
+    ATTR_TRAFFIC_FORWARD,
+    ATTR_TRAFFIC_DIRECTION,
+)
 from .entity import IDFMEntity
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 
-
-"""
-async def async_setup_entry(hass, entry, async_add_devices):
-    coordinator = hass.data[DOMAIN]
-    async_add_devices([IDFMTimeSensor(coordinator, entry)])
-"""
 
 async def async_setup_entry(
     hass,
@@ -19,18 +21,22 @@ async def async_setup_entry(
     """Setup sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        [IDFMTimeSensor(coordinator, entry, 0), IDFMTimeSensor(coordinator, entry, 1), IDFMTimeSensor(coordinator, entry, 2)], True
+        [
+            IDFMTimeSensor(coordinator, entry, 0),
+            IDFMTimeSensor(coordinator, entry, 1),
+            IDFMTimeSensor(coordinator, entry, 2),
+        ],
+        True,
     )
-
 
 
 class IDFMTimeSensor(IDFMEntity, SensorEntity):
     """IDFM Timestamp Sensor class."""
+
     def __init__(self, coordinator, config_entry, num):
         super().__init__(coordinator, config_entry)
         self.num = num
         self._attrs = {}
-
 
     @property
     def unique_id(self):
@@ -40,14 +46,14 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"{DEFAULT_NAME}_next_{self.num}"
+        return (
+            self.config_entry.data[CONF_STOP_NAME]
+            + " -> "
+            + self.config_entry.data[CONF_DIRECTION]
+            + " #"
+            + str(self.num)
+        )
 
-    
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return 'mdi:train'
-        
     @property
     def device_class(self):
         """Return the class of this sensor."""
@@ -75,8 +81,12 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
         if self.num < len(self.coordinator.data[DATA_TRAFFIC]):
             self._attrs.update(
                 {
-                    ATTR_TRAFFIC_FORWARD: self.coordinator.data[DATA_TRAFFIC][self.num].forward,
-                    ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][self.num].direction
+                    ATTR_TRAFFIC_FORWARD: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].forward,
+                    ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].direction,
                 }
             )
         return self._attrs

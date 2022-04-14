@@ -1,7 +1,16 @@
 """IDFMEntity class"""
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTRIBUTION, DOMAIN, NAME, VERSION
+from .const import (
+    ATTRIBUTION,
+    CONF_DIRECTION,
+    CONF_LINE,
+    CONF_STOP,
+    DOMAIN,
+    NAME,
+    VERSION,
+    CONF_STOP_NAME,
+)
 
 
 class IDFMEntity(CoordinatorEntity):
@@ -16,9 +25,16 @@ class IDFMEntity(CoordinatorEntity):
 
     @property
     def device_info(self):
+        id = (
+            self.config_entry.data[CONF_LINE]
+            + self.config_entry.data[CONF_STOP]
+            + self.config_entry.data[CONF_DIRECTION]
+        )
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": NAME,
+            "identifiers": {(DOMAIN, id)},
+            "name": self.config_entry.data[CONF_STOP_NAME]
+            + " -> "
+            + self.config_entry.data[CONF_DIRECTION],
             "model": VERSION,
             "manufacturer": NAME,
         }

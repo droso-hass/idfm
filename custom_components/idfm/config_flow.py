@@ -99,12 +99,12 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if CONF_STOP in user_input:
             for s in stops:
-                if s.name == user_input[CONF_STOP]:
+                if s.name  + " - " + s.city == user_input[CONF_STOP]:
                     self.data[CONF_STOP] = s.id
-                    self.data[CONF_STOP_NAME] = s.name
+                    self.data[CONF_STOP_NAME] = s.name + " - " + s.city
                     return await self.async_step_direction()
 
-        names = [s.name for s in stops]
+        names = [s.name + " - " + s.city for s in stops]
 
         return self.async_show_form(
             step_id="stop",

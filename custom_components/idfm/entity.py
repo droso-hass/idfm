@@ -5,6 +5,7 @@ from .const import (
     ATTRIBUTION,
     CONF_DIRECTION,
     CONF_LINE,
+    CONF_LINE_NAME,
     CONF_STOP,
     DOMAIN,
     NAME,
@@ -32,7 +33,7 @@ class IDFMEntity(CoordinatorEntity):
         )
         return {
             "identifiers": {(DOMAIN, id)},
-            "name": self.config_entry.data[CONF_STOP_NAME]
+            "name": self.config_entry.data[CONF_LINE_NAME] + " - " + self.config_entry.data[CONF_STOP_NAME]
             + " -> "
             + self.config_entry.data[CONF_DIRECTION],
             "model": VERSION,

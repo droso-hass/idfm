@@ -18,6 +18,7 @@ from .const import (
 from .entity import IDFMEntity
 from datetime import datetime
 
+
 async def async_setup_entry(
     hass,
     entry,
@@ -44,7 +45,8 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
     def name(self):
         """Return the name of the binary_sensor."""
         return (
-            self.config_entry.data[CONF_LINE_NAME]
+            "idfm_"
+            + self.config_entry.data[CONF_LINE_NAME]
             + " ["
             + self.config_entry.data[CONF_STOP_NAME]
             + "]"

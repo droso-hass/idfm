@@ -47,7 +47,8 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     def name(self):
         """Return the name of the sensor."""
         return (
-            self.config_entry.data[CONF_STOP_NAME]
+            "idfm_"
+            + self.config_entry.data[CONF_STOP_NAME]
             + " -> "
             + self.config_entry.data[CONF_DIRECTION]
             + " #"

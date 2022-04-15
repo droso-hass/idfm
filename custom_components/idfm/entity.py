@@ -29,13 +29,13 @@ class IDFMEntity(CoordinatorEntity):
         id = (
             self.config_entry.data[CONF_LINE]
             + self.config_entry.data[CONF_STOP]
-            + self.config_entry.data[CONF_DIRECTION]
+            + (self.config_entry.data[CONF_DIRECTION] or "any")
         )
         return {
             "identifiers": {(DOMAIN, id)},
             "name": self.config_entry.data[CONF_LINE_NAME] + " - " + self.config_entry.data[CONF_STOP_NAME]
             + " -> "
-            + self.config_entry.data[CONF_DIRECTION],
+            + (self.config_entry.data[CONF_DIRECTION] or "any"),
             "model": VERSION,
             "manufacturer": NAME,
         }

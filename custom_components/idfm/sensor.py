@@ -50,7 +50,7 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
             "idfm_"
             + self.config_entry.data[CONF_STOP_NAME]
             + " -> "
-            + self.config_entry.data[CONF_DIRECTION]
+            + (self.config_entry.data[CONF_DIRECTION] or "any")
             + " #"
             + str(self.num)
         )

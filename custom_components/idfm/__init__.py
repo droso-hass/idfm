@@ -102,8 +102,9 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
             tr = await self.api.get_traffic(
                 self.line_id, self.stop_area_id, self.direction
             )
+            sorted_tr = sorted(filter(lambda x: (x.schedule is not None), tr), key=lambda x: x.schedule)
             inf = await self.api.get_infos(self.line_id)
-            return {DATA_TRAFFIC: tr, DATA_INFO: inf}
+            return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
         except Exception as exception:
             raise UpdateFailed() from exception
 

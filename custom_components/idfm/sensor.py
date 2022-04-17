@@ -64,8 +64,7 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     def state(self):
         """Return the state of the sensor."""
         if self.num < len(self.coordinator.data[DATA_TRAFFIC]):
-            data = sorted(self.coordinator.data[DATA_TRAFFIC], key=lambda x: x.schedule)
-            return data[self.num].schedule
+            return self.coordinator.data[DATA_TRAFFIC][self.num].schedule
 
     @property
     def icon(self):
@@ -81,11 +80,10 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         if self.num < len(self.coordinator.data[DATA_TRAFFIC]):
-            data = sorted(self.coordinator.data[DATA_TRAFFIC], key=lambda x: x.schedule)
             self._attrs.update(
                 {
-                    ATTR_TRAFFIC_FORWARD: data[self.num].forward,
-                    ATTR_TRAFFIC_DIRECTION: data[self.num].direction,
+                    ATTR_TRAFFIC_FORWARD: self.coordinator.data[DATA_TRAFFIC][self.num].forward,
+                    ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][self.num].direction,
                 }
             )
         return self._attrs

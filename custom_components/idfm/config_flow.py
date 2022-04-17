@@ -20,7 +20,6 @@ from .const import (
 
 # select transport type > select line > select stop > select direction
 
-
 class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for IDFM."""
 
@@ -138,7 +137,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         directions = await self._client.get_directions(
             self.data[CONF_LINE], self.data[CONF_STOP]
         )
-        directions.append("any")
+        directions = [x for x in directions if x is not None] + ["any"]
 
         return self.async_show_form(
             step_id="direction",

@@ -5,7 +5,6 @@ DOMAIN = "idfm"
 DOMAIN_DATA = f"{DOMAIN}_data"
 VERSION = "1.1"
 
-ATTRIBUTION = "Data provided by https://me-deplacer.iledefrance-mobilites.fr"
 ISSUE_URL = "https://github.com/droso-hass/idfm/issues"
 
 # Icons
@@ -18,12 +17,14 @@ PLATFORMS = [BINARY_SENSOR, SENSOR]
 
 
 # Configuration and options
+CONF_TOKEN = "api_token"
 CONF_TRANSPORT = "transport_mode"
 CONF_LINE = "transport_line"
 CONF_LINE_NAME = "transport_line_name"
 CONF_STOP = "stop_area"
 CONF_STOP_NAME = "stop_area_name"
 CONF_DIRECTION = "direction"
+CONF_DESTINATION = "destination"
 
 DATA_TRAFFIC = "traffic"
 DATA_INFO = "info"
@@ -35,7 +36,7 @@ ATTR_INFO_TYPE = "type"
 ATTR_INFO_START_TIME = "start_time"
 ATTR_INFO_END_TIME = "end_time"
 
-ATTR_TRAFFIC_FORWARD = "forward"
+ATTR_TRAFFIC_DESTINATION = "destination"
 ATTR_TRAFFIC_DIRECTION = "direction"
 
 

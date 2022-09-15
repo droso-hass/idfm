@@ -12,12 +12,17 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.util.dt import now
 
 from idfm_api import IDFMApi
+from idfm_api.models import TransportType
 from .const import (
+    CONF_TRANSPORT,
+    CONF_DESTINATION,
     CONF_LINE,
     CONF_DIRECTION,
     CONF_STOP,
+    CONF_TOKEN,
     DOMAIN,
     PLATFORMS,
     STARTUP_MESSAGE,
@@ -25,7 +30,7 @@ from .const import (
     DATA_INFO,
 )
 
-SCAN_INTERVAL = timedelta(seconds=60)
+SCAN_INTERVAL = timedelta(minutes=3)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -41,18 +46,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data.setdefault(DOMAIN, {})
         _LOGGER.info(STARTUP_MESSAGE)
 
+    transport_type = entry.data.get(CONF_TRANSPORT)
     line_id = entry.data.get(CONF_LINE)
     direction = entry.data.get(CONF_DIRECTION)
+    destination = entry.data.get(CONF_DESTINATION)
     stop_area_id = entry.data.get(CONF_STOP)
 
     session = async_get_clientsession(hass)
-    client = IDFMApi(session)
+    client = IDFMApi(session, entry.data.get(CONF_TOKEN))
 
     coordinator = IDFMDataUpdateCoordinator(
         hass,
         client=client,
+        transport_type=transport_type,
         line_id=line_id,
         stop_area_id=stop_area_id,
+        destination=destination,
         direction=direction,
     )
     await coordinator.async_refresh()
@@ -80,15 +89,19 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         self,
         hass: HomeAssistant,
         client: IDFMApi,
+        transport_type: str,
         line_id: str,
         stop_area_id: str,
         direction: str,
+        destination: str
     ) -> None:
         """Initialize."""
         self.api = client
+        self.transport_type = transport_type
         self.line_id = line_id
         self.stop_area_id = stop_area_id
         self.direction = direction
+        self.destination = destination
         self.platforms = []
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
@@ -99,12 +112,15 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            tr = await self.api.get_traffic(
-                self.line_id, self.stop_area_id, self.direction
-            )
-            sorted_tr = sorted(filter(lambda x: (x.schedule is not None), tr), key=lambda x: x.schedule)
-            inf = await self.api.get_infos(self.line_id)
-            return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
+            d = now()
+            # skip updating for tram, train and trams between 1h30 and 5h30
+            if self.transport_type not in [TransportType.TRAIN, TransportType.METRO, TransportType.TRAM] or ((d.hour == 1 and d.minute > 30) or (d.hour < 1 or d.hour > 5) or (d.hour == 5 and d.minute < 30)):
+                tr = await self.api.get_traffic(
+                    self.stop_area_id, self.destination, self.direction
+                )
+                sorted_tr = sorted(filter(lambda x: (x.schedule is not None), tr), key=lambda x: x.schedule)
+                inf = await self.api.get_infos(self.line_id)
+                return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
         except Exception as exception:
             raise UpdateFailed() from exception
 

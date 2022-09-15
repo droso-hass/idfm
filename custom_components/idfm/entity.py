@@ -2,7 +2,6 @@
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    ATTRIBUTION,
     CONF_DIRECTION,
     CONF_LINE,
     CONF_LINE_NAME,
@@ -11,6 +10,13 @@ from .const import (
     NAME,
     VERSION,
     CONF_STOP_NAME,
+)
+
+from idfm_api.attribution import (
+    IDFM_DB_LICENCE,
+    IDFM_DB_LICENCE_LINK,
+    IDFM_DB_SOURCES,
+    IDFM_API_LINK
 )
 
 
@@ -43,8 +49,14 @@ class IDFMEntity(CoordinatorEntity):
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
+        static = [f"<a href='{v}'>{k}</a>" for k,v in IDFM_DB_SOURCES.items()]
+        attribution = f"""
+        Données statiques issues des datasets {static}
+        Données dynamiques mises a disposition par <a href='{IDFM_API_LINK}'>PRIM</a>
+        Le tout sous licence <a href='{IDFM_DB_LICENCE_LINK}'>{IDFM_DB_LICENCE}</a>
+        """
         return {
-            "attribution": ATTRIBUTION,
+            "attribution": attribution,
             "id": str(self.coordinator.data.get("id")),
             "integration": DOMAIN,
         }

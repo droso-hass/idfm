@@ -3,6 +3,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorDeviceClass,
 )
+from homeassistant.util.dt import as_local, now
 
 from .const import (
     CONF_LINE_NAME,
@@ -60,47 +61,47 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
     @property
     def is_on(self):
         """Return true if the binary_sensor is on."""
-        dt = datetime.now()
-        for i in self.coordinator.data[DATA_INFO]:
-            if dt >= i.start_time and dt <= i.end_time:
-                return True
+        if self.coordinator.data is not None:
+            dt = now()
+            for i in self.coordinator.data[DATA_INFO]:
+                if dt >= as_local(i.start_time) and dt <= as_local(i.end_time):
+                    return True
         return False
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
 
-        lst = []
-        dt = datetime.now()
-        for i in self.coordinator.data[DATA_INFO]:
-            if i.start_time >= dt or dt <= i.end_time:
-                lst.append(i)
+        if self.coordinator.data is not None:
+            lst = []
+            dt = now()
+            for i in self.coordinator.data[DATA_INFO]:
+                if as_local(i.start_time) >= dt or dt <= as_local(i.end_time):
+                    lst.append(i)
 
-        if len(lst) == 0:
-            lst = self.coordinator.data[DATA_INFO]
+            if len(lst) == 0:
+                lst = self.coordinator.data[DATA_INFO]
 
-        lst.sort(key=lambda x: x.severity.value)
-
-        if len(lst) > 0:
-            data = lst[-1]
-            self._attrs.update(
-                {
-                    ATTR_INFO_DESC: data.message,
-                    ATTR_INFO_END_TIME: data.end_time,
-                    ATTR_INFO_SEVERITY: data.severity.value,
-                    ATTR_INFO_START_TIME: data.start_time,
-                    ATTR_INFO_TYPE: data.type,
-                }
-            )
-        else:
-            self._attrs.update(
-                {
-                    ATTR_INFO_DESC: "",
-                    ATTR_INFO_END_TIME: None,
-                    ATTR_INFO_SEVERITY: 0,
-                    ATTR_INFO_START_TIME: None,
-                    ATTR_INFO_TYPE: "",
-                }
-            )
+            if len(lst) > 0:
+                data = lst[-1]
+                self._attrs.update(
+                    {
+                        ATTR_INFO_DESC: data.message,
+                        ATTR_INFO_END_TIME: as_local(data.end_time),
+                        ATTR_INFO_SEVERITY: data.severity,
+                        ATTR_INFO_START_TIME: as_local(data.start_time),
+                        ATTR_INFO_TYPE: data.type,
+                    }
+                )
+            else:
+                self._attrs.update(
+                    {
+                        ATTR_INFO_DESC: "",
+                        ATTR_INFO_END_TIME: None,
+                        ATTR_INFO_SEVERITY: 0,
+                        ATTR_INFO_START_TIME: None,
+                        ATTR_INFO_TYPE: "",
+                    }
+                )
 
         return self._attrs

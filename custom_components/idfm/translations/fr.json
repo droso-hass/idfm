@@ -2,6 +2,13 @@
     "config": {
       "step": {
         "user": {
+          "title": "Token d'API",
+          "description": "Créez un compte sur le site de la plateforme PRIM et récupérez votre token d'API ici:\n\nhttps://prim.iledefrance-mobilites.fr/fr/mon-jeton-api",
+          "data": {
+            "api_token": "Collez votre token ici"
+          }
+        },
+        "transport": {
           "title": "Moyen de transport",
           "description": "Sélectionner le moyen de transport",
           "data": {

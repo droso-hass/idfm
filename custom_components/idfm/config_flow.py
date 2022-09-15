@@ -2,13 +2,14 @@
 from typing import Any, Dict, Optional
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from aiohttp import ClientSession
 
 
 from idfm_api import IDFMApi
 from idfm_api.models import TransportType
 from .const import (
+    CONF_DESTINATION,
+    CONF_TOKEN,
     CONF_LINE,
     CONF_LINE_NAME,
     CONF_DIRECTION,
@@ -28,13 +29,28 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         """Initialize."""
-        # self._session = async_get_clientsession(self.hass)
         self._session = ClientSession()
-        self._client = IDFMApi(self._session)
+        self._client = None
         self.data = {}
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         """Handle a flow initialized by the user."""
+        if user_input is None:
+            user_input = {}
+
+        if CONF_TOKEN in user_input:
+            self.data[CONF_TOKEN] = user_input[CONF_TOKEN]
+            self._client = IDFMApi(self._session, user_input[CONF_TOKEN])
+            return await self.async_step_transport()
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema({vol.Required(CONF_TOKEN): str}),
+            errors={},
+        )
+
+    async def async_step_transport(self, user_input: Optional[Dict[str,Any]] = None):
+        """Second step in config flow to select a transport mode"""
         if user_input is None:
             user_input = {}
 
@@ -48,7 +64,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         transports = [t.name for t in list(TransportType)]
 
         return self.async_show_form(
-            step_id="user",
+            step_id="transport",
             data_schema=vol.Schema(
                 {
                     vol.Required(
@@ -61,7 +77,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_line(self, user_input: Optional[Dict[str, Any]] = None):
-        """Second step in config flow to add a repo to watch."""
+        """Thrid step in config flow to select the transport line"""
         if user_input is None:
             user_input = {}
 
@@ -90,7 +106,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_stop(self, user_input: Optional[Dict[str, Any]] = None):
-        """Third step in config flow to add a repo to watch."""
+        """Fourth step in config flow to select a starting stop."""
         if user_input is None:
             user_input = {}
 
@@ -119,25 +135,30 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_direction(self, user_input: Optional[Dict[str, Any]] = None):
-        """Fourth step in config flow to add a repo to watch."""
+        """Fifth step in config flow to select a specific direction/destination"""
         if user_input is None:
             user_input = {}
 
         if CONF_DIRECTION in user_input:
-            self.data[CONF_DIRECTION] = (
-                None
-                if user_input[CONF_DIRECTION] == "any"
-                else user_input[CONF_DIRECTION]
-            )
+            self.data[CONF_DIRECTION] = None
+            self.data[CONF_DESTINATION] = None
+            if user_input[CONF_DIRECTION][0:3] == "Dir":
+                self.data[CONF_DIRECTION] = user_input[CONF_DIRECTION][5:]
+            elif user_input[CONF_DIRECTION][0:3] == "Des":
+                self.data[CONF_DESTINATION] = user_input[CONF_DIRECTION][6:]
+                
             return self.async_create_entry(
                 title=self.data[CONF_LINE_NAME] + " - " + self.data[CONF_STOP_NAME],
                 data=self.data,
             )
 
         directions = await self._client.get_directions(
-            self.data[CONF_LINE], self.data[CONF_STOP]
+            self.data[CONF_STOP]
         )
-        directions = [x for x in directions if x is not None] + ["any"]
+        destinations = await self._client.get_destinations(
+            self.data[CONF_STOP]
+        )
+        directions = ["Dir: " + x for x in directions if x is not None] + ["Dest: " + x for x in destinations if x is not None] + ["any"]
 
         return self.async_show_form(
             step_id="direction",

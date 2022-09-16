@@ -45,18 +45,17 @@ class IDFMEntity(CoordinatorEntity):
             "model": VERSION,
             "manufacturer": NAME,
         }
+    
+    @property
+    def attribution(self) -> str:
+        """Return the attribution."""
+        static = "[" + ", ".join(IDFM_DB_SOURCES.values()) + "]"
+        return f"Static Data: {static} - API provided by PRIM: {IDFM_API_LINK} - Under {IDFM_DB_LICENCE}: {IDFM_DB_LICENCE_LINK}"
 
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
-        static = [f"<a href='{v}'>{k}</a>" for k,v in IDFM_DB_SOURCES.items()]
-        attribution = f"""
-        Données statiques issues des datasets {static}
-        Données dynamiques mises a disposition par <a href='{IDFM_API_LINK}'>PRIM</a>
-        Le tout sous licence <a href='{IDFM_DB_LICENCE_LINK}'>{IDFM_DB_LICENCE}</a>
-        """
         return {
-            "attribution": attribution,
             "id": str(self.coordinator.data.get("id")),
             "integration": DOMAIN,
         }

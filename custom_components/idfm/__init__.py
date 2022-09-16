@@ -3,7 +3,7 @@ Custom integration for Ile de france mobilite for Home Assistant.
 """
 import asyncio
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config
@@ -12,7 +12,6 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
-from homeassistant.util.dt import now
 
 from idfm_api import IDFMApi
 from idfm_api.models import TransportType
@@ -112,9 +111,9 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            d = now()
+            d = datetime.now()
             # skip updating for tram, train and trams between 1h30 and 5h30
-            if self.transport_type not in [TransportType.TRAIN, TransportType.METRO, TransportType.TRAM] or ((d.hour == 1 and d.minute > 30) or (d.hour < 1 or d.hour > 5) or (d.hour == 5 and d.minute < 30)):
+            if self.transport_type not in [TransportType.TRAIN, TransportType.METRO, TransportType.TRAM] or ((d.hour == 1 and d.minute < 30) or (d.hour < 1 or d.hour > 5) or (d.hour == 5 and d.minute >= 30)):
                 tr = await self.api.get_traffic(
                     self.stop_area_id, self.destination, self.direction
                 )

@@ -28,7 +28,7 @@ You can now use the [homeassistant.update_entity](https://www.home-assistant.io/
 
 You can also use the examples of the [maps travel time integration](https://www.home-assistant.io/integrations/google_travel_time/#updating-sensors-on-demand-using-automation) as a source of inspiration.
 
-````yaml
+```yaml
 service: homeassistant.update_entity
 target:
   entity_id: sensor.idfm_gare_de_lyon_paris_chateau_de_vincennes_0

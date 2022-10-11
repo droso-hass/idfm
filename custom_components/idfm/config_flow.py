@@ -40,7 +40,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if CONF_TOKEN in user_input:
             self.data[CONF_TOKEN] = user_input[CONF_TOKEN]
-            self._client = IDFMApi(self._session, user_input[CONF_TOKEN])
+            self._client = IDFMApi(self._session, user_input[CONF_TOKEN], timeout=300)
             return await self.async_step_transport()
 
         return self.async_show_form(

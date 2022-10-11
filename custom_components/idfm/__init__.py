@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     stop_area_id = entry.data.get(CONF_STOP)
 
     session = async_get_clientsession(hass)
-    client = IDFMApi(session, entry.data.get(CONF_TOKEN))
+    client = IDFMApi(session, entry.data.get(CONF_TOKEN), timeout=300)
 
     coordinator = IDFMDataUpdateCoordinator(
         hass,

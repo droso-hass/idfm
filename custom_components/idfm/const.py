@@ -38,6 +38,9 @@ ATTR_INFO_END_TIME = "end_time"
 
 ATTR_TRAFFIC_DESTINATION = "destination"
 ATTR_TRAFFIC_DIRECTION = "direction"
+ATTR_TRAFFIC_AT_STOP = "at_stop"
+ATTR_TRAFFIC_PLATFORM = "platform"
+ATTR_TRAFFIC_STATUS = "status"
 
 
 STARTUP_MESSAGE = f"""

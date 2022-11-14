@@ -117,10 +117,9 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
                 tr = await self.api.get_traffic(
                     self.stop_area_id, self.destination, self.direction
                 )
-                # Filter past schedules (more than 2 minutes, could be changed to be part of configuration?)
+                # Filter past schedules
                 utcd = datetime.utcnow().replace(tzinfo=timezone.utc)
-                past_minutes = 2
-                sorted_tr = sorted(filter(lambda x: (x.schedule is not None and x.schedule >= (utcd-timedelta(minutes=past_minutes,seconds=1))), tr), key=lambda x: x.schedule)
+                sorted_tr = sorted(filter(lambda x: (x.schedule is not None and x.schedule > utcd), tr), key=lambda x: x.schedule)
                 inf = await self.api.get_infos(self.line_id)
                 return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
         except Exception as exception:

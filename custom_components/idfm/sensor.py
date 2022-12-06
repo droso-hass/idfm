@@ -8,6 +8,9 @@ from .const import (
     DATA_TRAFFIC,
     ATTR_TRAFFIC_DESTINATION,
     ATTR_TRAFFIC_DIRECTION,
+    ATTR_TRAFFIC_AT_STOP,
+    ATTR_TRAFFIC_PLATFORM,
+    ATTR_TRAFFIC_STATUS
 )
 from .entity import IDFMEntity
 
@@ -87,6 +90,9 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
                 {
                     ATTR_TRAFFIC_DESTINATION: self.coordinator.data[DATA_TRAFFIC][self.num].destination_name,
                     ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][self.num].direction,
+                    ATTR_TRAFFIC_AT_STOP: self.coordinator.data[DATA_TRAFFIC][self.num].at_stop,
+                    ATTR_TRAFFIC_PLATFORM: self.coordinator.data[DATA_TRAFFIC][self.num].platform,
+                    ATTR_TRAFFIC_STATUS: self.coordinator.data[DATA_TRAFFIC][self.num].status,
                 }
             )
         return self._attrs

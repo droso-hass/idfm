@@ -16,7 +16,9 @@ from idfm_api.attribution import (
     IDFM_DB_LICENCE,
     IDFM_DB_LICENCE_LINK,
     IDFM_DB_SOURCES,
-    IDFM_API_LINK
+    IDFM_API_LINK,
+    IDFM_API_LICENCE,
+    IDFM_API_LICENCE_LINK
 )
 
 
@@ -50,7 +52,7 @@ class IDFMEntity(CoordinatorEntity):
     def attribution(self) -> str:
         """Return the attribution."""
         static = "[" + ", ".join(IDFM_DB_SOURCES.values()) + "]"
-        return f"Static Data: {static} - API provided by PRIM: {IDFM_API_LINK} - Under {IDFM_DB_LICENCE}: {IDFM_DB_LICENCE_LINK}"
+        return f"Static Data: {static} under {IDFM_DB_LICENCE}: {IDFM_DB_LICENCE_LINK} - API provided by PRIM: {IDFM_API_LINK} under {IDFM_API_LICENCE}: {IDFM_API_LICENCE_LINK}"
 
     @property
     def device_state_attributes(self):

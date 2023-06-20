@@ -3,7 +3,7 @@
 NAME = "Ile de france mobilités"
 DOMAIN = "idfm"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "1.1"
+VERSION = "2.1.2"
 
 ISSUE_URL = "https://github.com/droso-hass/idfm/issues"
 
@@ -36,6 +36,7 @@ ATTR_INFO_TYPE = "type"
 ATTR_INFO_START_TIME = "start_time"
 ATTR_INFO_END_TIME = "end_time"
 
+ATTR_TRAFFIC_DETAILS = "details"
 ATTR_TRAFFIC_DESTINATION = "destination"
 ATTR_TRAFFIC_DIRECTION = "direction"
 ATTR_TRAFFIC_AT_STOP = "at_stop"

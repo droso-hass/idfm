@@ -115,7 +115,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if CONF_STOP in user_input:
             for s in stops:
                 if s.name  + " - " + s.city == user_input[CONF_STOP]:
-                    self.data[CONF_STOP] = s.id
+                    self.data[CONF_STOP] = s.exchange_area_id or s.stop_id
                     self.data[CONF_STOP_NAME] = s.name + " - " + s.city
                     return await self.async_step_direction()
 
@@ -153,10 +153,12 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
         directions = await self._client.get_directions(
-            self.data[CONF_STOP]
+            self.data[CONF_STOP],
+            line_id=self.data[CONF_LINE],
         )
         destinations = await self._client.get_destinations(
-            self.data[CONF_STOP]
+            self.data[CONF_STOP],
+            line_id=self.data[CONF_LINE],
         )
         directions = ["Dir: " + x for x in directions if x is not None] + ["Dest: " + x for x in destinations if x is not None] + ["any"]
 

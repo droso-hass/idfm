@@ -115,7 +115,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
             # skip updating for tram, train and trams between 1h30 and 5h30
             if self.transport_type not in [TransportType.TRAIN, TransportType.METRO, TransportType.TRAM] or ((d.hour == 1 and d.minute < 30) or (d.hour < 1 or d.hour > 5) or (d.hour == 5 and d.minute >= 30)):
                 tr = await self.api.get_traffic(
-                    self.stop_area_id, self.destination, self.direction
+                    self.stop_area_id, self.destination, self.direction, self.line_id
                 )
                 # Filter past schedules
                 utcd = datetime.utcnow().replace(tzinfo=timezone.utc)

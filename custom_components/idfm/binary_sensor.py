@@ -17,7 +17,6 @@ from .const import (
     ATTR_INFO_TYPE,
 )
 from .entity import IDFMEntity
-from datetime import datetime
 
 
 async def async_setup_entry(

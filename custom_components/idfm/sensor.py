@@ -6,6 +6,7 @@ from .const import (
     DOMAIN,
     ICON,
     DATA_TRAFFIC,
+    ATTR_TRAFFIC_DETAILS,
     ATTR_TRAFFIC_DESTINATION,
     ATTR_TRAFFIC_DIRECTION,
     ATTR_TRAFFIC_AT_STOP,
@@ -88,6 +89,7 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
         if self.coordinator.data is not None and self.num < len(self.coordinator.data[DATA_TRAFFIC]):
             self._attrs.update(
                 {
+                    ATTR_TRAFFIC_DETAILS: self.coordinator.data[DATA_TRAFFIC][self.num].note,
                     ATTR_TRAFFIC_DESTINATION: self.coordinator.data[DATA_TRAFFIC][self.num].destination_name,
                     ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][self.num].direction,
                     ATTR_TRAFFIC_AT_STOP: self.coordinator.data[DATA_TRAFFIC][self.num].at_stop,

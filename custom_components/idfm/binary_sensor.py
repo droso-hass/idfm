@@ -6,7 +6,10 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.util.dt import as_local, now
 
 from .const import (
+    ATTR_INFO_CATEGORY,
+    ATTR_INFO_CAUSE,
     ATTR_INFO_DESC,
+    ATTR_INFO_EFFECT,
     ATTR_INFO_END_TIME,
     ATTR_INFO_SEVERITY,
     ATTR_INFO_START_TIME,
@@ -74,22 +77,32 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
         if self.coordinator.data is not None:
             lst = []
             dt = now()
+            # keep only current events
             for i in self.coordinator.data[DATA_INFO]:
-                if as_local(i.start_time) >= dt or dt <= as_local(i.end_time):
-                    lst.append(i)
-
-            if len(lst) == 0:
-                lst = self.coordinator.data[DATA_INFO]
+                for t in i.periods:
+                    if as_local(t[0]) >= dt or dt <= as_local(t[1]):
+                        lst.append(i)
 
             if len(lst) > 0:
-                data = lst[-1]
+                # sort by severity
+                lst.sort(key=lambda x: x.severity)
+                data = lst[0]
+                period = None
+                for t in data.periods:
+                    if as_local(t[0]) >= dt or dt <= as_local(t[1]):
+                        period = t
+                        break
+
                 self._attrs.update(
                     {
                         ATTR_INFO_DESC: data.message,
-                        ATTR_INFO_END_TIME: as_local(data.end_time),
+                        ATTR_INFO_END_TIME: as_local(period[1]),
                         ATTR_INFO_SEVERITY: data.severity,
-                        ATTR_INFO_START_TIME: as_local(data.start_time),
+                        ATTR_INFO_START_TIME: as_local(period[0]),
                         ATTR_INFO_TYPE: data.type,
+                        ATTR_INFO_CATEGORY: data.category,
+                        ATTR_INFO_CAUSE: data.cause,
+                        ATTR_INFO_EFFECT: data.effect,
                     }
                 )
             else:
@@ -100,6 +113,9 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                         ATTR_INFO_SEVERITY: 0,
                         ATTR_INFO_START_TIME: None,
                         ATTR_INFO_TYPE: "",
+                        ATTR_INFO_CATEGORY: "",
+                        ATTR_INFO_CAUSE: "",
+                        ATTR_INFO_EFFECT: "",
                     }
                 )
 

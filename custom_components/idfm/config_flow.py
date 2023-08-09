@@ -5,11 +5,13 @@ import voluptuous as vol
 from aiohttp import ClientSession
 from homeassistant import config_entries
 from idfm_api import IDFMApi
+from idfm_api.dataset import Dataset
 from idfm_api.models import TransportType
 
 from .const import (
     CONF_DESTINATION,
     CONF_DIRECTION,
+    CONF_EXCLUDE_ELEVATORS,
     CONF_LINE,
     CONF_LINE_NAME,
     CONF_STOP,
@@ -33,20 +35,25 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._session = ClientSession()
         self._client = None
         self.data = {}
+        Dataset.fetch_data(self._session)
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         """Handle a flow initialized by the user."""
         if user_input is None:
             user_input = {}
 
-        if CONF_TOKEN in user_input:
+        if CONF_TOKEN in user_input and CONF_EXCLUDE_ELEVATORS in user_input:
             self.data[CONF_TOKEN] = user_input[CONF_TOKEN]
+            self.data[CONF_EXCLUDE_ELEVATORS] = user_input[CONF_EXCLUDE_ELEVATORS]
             self._client = IDFMApi(self._session, user_input[CONF_TOKEN], timeout=300)
             return await self.async_step_transport()
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required(CONF_TOKEN): str}),
+            data_schema=vol.Schema({
+                vol.Required(CONF_TOKEN): str,
+                vol.Required(CONF_EXCLUDE_ELEVATORS, default=True): bool,
+            }),
             errors={},
         )
 

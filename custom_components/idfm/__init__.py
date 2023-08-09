@@ -16,6 +16,7 @@ from idfm_api.models import TransportType
 from .const import (
     CONF_DESTINATION,
     CONF_DIRECTION,
+    CONF_EXCLUDE_ELEVATORS,
     CONF_LINE,
     CONF_STOP,
     CONF_TOKEN,
@@ -48,6 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     direction = entry.data.get(CONF_DIRECTION)
     destination = entry.data.get(CONF_DESTINATION)
     stop_area_id = entry.data.get(CONF_STOP)
+    exclude_elevators = entry.data.get(CONF_EXCLUDE_ELEVATORS) or True
 
     session = async_get_clientsession(hass)
     client = IDFMApi(session, entry.data.get(CONF_TOKEN), timeout=300)
@@ -60,6 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         stop_area_id=stop_area_id,
         destination=destination,
         direction=direction,
+        exclude_elevators=exclude_elevators
     )
     await coordinator.async_refresh()
 
@@ -91,6 +94,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         stop_area_id: str,
         direction: str,
         destination: str,
+        exclude_elevators: bool
     ) -> None:
         """Initialize."""
         self.api = client
@@ -99,6 +103,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         self.stop_area_id = stop_area_id
         self.direction = direction
         self.destination = destination
+        self.exclude_elevators = exclude_elevators
         self.platforms = []
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
@@ -131,7 +136,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
                     ),
                     key=lambda x: x.schedule,
                 )
-                inf = await self.api.get_infos(self.line_id)
+                inf = await self.api.get_line_reports(self.line_id, self.exclude_elevators)
                 return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
         except Exception as exception:
             raise UpdateFailed() from exception

@@ -1,20 +1,20 @@
 """Binary sensor platform for IDFM Integration"""
 from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
     BinarySensorDeviceClass,
+    BinarySensorEntity,
 )
 from homeassistant.util.dt import as_local, now
 
 from .const import (
-    CONF_LINE_NAME,
-    CONF_STOP_NAME,
-    DOMAIN,
-    DATA_INFO,
     ATTR_INFO_DESC,
     ATTR_INFO_END_TIME,
     ATTR_INFO_SEVERITY,
     ATTR_INFO_START_TIME,
     ATTR_INFO_TYPE,
+    CONF_LINE_NAME,
+    CONF_STOP_NAME,
+    DATA_INFO,
+    DOMAIN,
 )
 from .entity import IDFMEntity
 

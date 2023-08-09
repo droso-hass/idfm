@@ -1,25 +1,26 @@
 """Adds config flow for IDFM Integration"""
 from typing import Any, Dict, Optional
+
 import voluptuous as vol
-from homeassistant import config_entries
 from aiohttp import ClientSession
-
-
+from homeassistant import config_entries
 from idfm_api import IDFMApi
 from idfm_api.models import TransportType
+
 from .const import (
     CONF_DESTINATION,
-    CONF_TOKEN,
+    CONF_DIRECTION,
     CONF_LINE,
     CONF_LINE_NAME,
-    CONF_DIRECTION,
     CONF_STOP,
     CONF_STOP_NAME,
+    CONF_TOKEN,
     CONF_TRANSPORT,
     DOMAIN,
 )
 
 # select transport type > select line > select stop > select direction
+
 
 class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for IDFM."""
@@ -49,7 +50,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors={},
         )
 
-    async def async_step_transport(self, user_input: Optional[Dict[str,Any]] = None):
+    async def async_step_transport(self, user_input: Optional[Dict[str, Any]] = None):
         """Second step in config flow to select a transport mode"""
         if user_input is None:
             user_input = {}
@@ -114,7 +115,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if CONF_STOP in user_input:
             for s in stops:
-                if s.name  + " - " + s.city == user_input[CONF_STOP]:
+                if s.name + " - " + s.city == user_input[CONF_STOP]:
                     self.data[CONF_STOP] = s.exchange_area_id or s.stop_id
                     self.data[CONF_STOP_NAME] = s.name + " - " + s.city
                     return await self.async_step_direction()
@@ -146,7 +147,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 self.data[CONF_DIRECTION] = user_input[CONF_DIRECTION][5:]
             elif user_input[CONF_DIRECTION][0:3] == "Des":
                 self.data[CONF_DESTINATION] = user_input[CONF_DIRECTION][6:]
-                
+
             return self.async_create_entry(
                 title=self.data[CONF_LINE_NAME] + " - " + self.data[CONF_STOP_NAME],
                 data=self.data,
@@ -160,7 +161,11 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self.data[CONF_STOP],
             line_id=self.data[CONF_LINE],
         )
-        directions = ["Dir: " + x for x in directions if x is not None] + ["Dest: " + x for x in destinations if x is not None] + ["any"]
+        directions = (
+            ["Dir: " + x for x in directions if x is not None]
+            + ["Dest: " + x for x in destinations if x is not None]
+            + ["any"]
+        )
 
         return self.async_show_form(
             step_id="direction",

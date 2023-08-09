@@ -3,30 +3,28 @@ Custom integration for Ile de france mobilite for Home Assistant.
 """
 import asyncio
 import logging
-from datetime import timedelta, datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import Config
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Config, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.helpers.update_coordinator import UpdateFailed
-
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from idfm_api import IDFMApi
 from idfm_api.models import TransportType
+
 from .const import (
-    CONF_TRANSPORT,
     CONF_DESTINATION,
-    CONF_LINE,
     CONF_DIRECTION,
+    CONF_LINE,
     CONF_STOP,
     CONF_TOKEN,
+    CONF_TRANSPORT,
+    DATA_INFO,
+    DATA_TRAFFIC,
     DOMAIN,
     PLATFORMS,
     STARTUP_MESSAGE,
-    DATA_TRAFFIC,
-    DATA_INFO,
 )
 
 SCAN_INTERVAL = timedelta(minutes=3)
@@ -92,7 +90,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         line_id: str,
         stop_area_id: str,
         direction: str,
-        destination: str
+        destination: str,
     ) -> None:
         """Initialize."""
         self.api = client
@@ -113,13 +111,26 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         try:
             d = datetime.now()
             # skip updating for tram, train and trams between 1h30 and 5h30
-            if self.transport_type not in [TransportType.TRAIN, TransportType.METRO, TransportType.TRAM] or ((d.hour == 1 and d.minute < 30) or (d.hour < 1 or d.hour > 5) or (d.hour == 5 and d.minute >= 30)):
+            if self.transport_type not in [
+                TransportType.TRAIN,
+                TransportType.METRO,
+                TransportType.TRAM,
+            ] or (
+                (d.hour == 1 and d.minute < 30)
+                or (d.hour < 1 or d.hour > 5)
+                or (d.hour == 5 and d.minute >= 30)
+            ):
                 tr = await self.api.get_traffic(
                     self.stop_area_id, self.destination, self.direction, self.line_id
                 )
                 # Filter past schedules
                 utcd = datetime.utcnow().replace(tzinfo=timezone.utc)
-                sorted_tr = sorted(filter(lambda x: (x.schedule is not None and x.schedule > utcd), tr), key=lambda x: x.schedule)
+                sorted_tr = sorted(
+                    filter(
+                        lambda x: (x.schedule is not None and x.schedule > utcd), tr
+                    ),
+                    key=lambda x: x.schedule,
+                )
                 inf = await self.api.get_infos(self.line_id)
                 return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
         except Exception as exception:

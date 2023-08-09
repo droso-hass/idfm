@@ -1,22 +1,22 @@
 """Sensor platform for IDFM Integration"""
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.util.dt import as_local
+
 from .const import (
+    ATTR_TRAFFIC_AT_STOP,
+    ATTR_TRAFFIC_DESTINATION,
+    ATTR_TRAFFIC_DETAILS,
+    ATTR_TRAFFIC_DIRECTION,
+    ATTR_TRAFFIC_PLATFORM,
+    ATTR_TRAFFIC_STATUS,
     CONF_DESTINATION,
     CONF_DIRECTION,
     CONF_STOP_NAME,
+    DATA_TRAFFIC,
     DOMAIN,
     ICON,
-    DATA_TRAFFIC,
-    ATTR_TRAFFIC_DETAILS,
-    ATTR_TRAFFIC_DESTINATION,
-    ATTR_TRAFFIC_DIRECTION,
-    ATTR_TRAFFIC_AT_STOP,
-    ATTR_TRAFFIC_PLATFORM,
-    ATTR_TRAFFIC_STATUS
 )
 from .entity import IDFMEntity
-
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
-from homeassistant.util.dt import as_local
 
 
 async def async_setup_entry(
@@ -57,7 +57,11 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
             "idfm_"
             + self.config_entry.data[CONF_STOP_NAME]
             + " -> "
-            + (self.config_entry.data[CONF_DIRECTION] or self.config_entry.data[CONF_DESTINATION] or "any")
+            + (
+                self.config_entry.data[CONF_DIRECTION]
+                or self.config_entry.data[CONF_DESTINATION]
+                or "any"
+            )
             + " #"
             + str(self.num)
         )
@@ -70,7 +74,9 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        if self.coordinator.data is not None and self.num < len(self.coordinator.data[DATA_TRAFFIC]):
+        if self.coordinator.data is not None and self.num < len(
+            self.coordinator.data[DATA_TRAFFIC]
+        ):
             return as_local(self.coordinator.data[DATA_TRAFFIC][self.num].schedule)
 
     @property
@@ -86,15 +92,29 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        if self.coordinator.data is not None and self.num < len(self.coordinator.data[DATA_TRAFFIC]):
+        if self.coordinator.data is not None and self.num < len(
+            self.coordinator.data[DATA_TRAFFIC]
+        ):
             self._attrs.update(
                 {
-                    ATTR_TRAFFIC_DETAILS: self.coordinator.data[DATA_TRAFFIC][self.num].note,
-                    ATTR_TRAFFIC_DESTINATION: self.coordinator.data[DATA_TRAFFIC][self.num].destination_name,
-                    ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][self.num].direction,
-                    ATTR_TRAFFIC_AT_STOP: self.coordinator.data[DATA_TRAFFIC][self.num].at_stop,
-                    ATTR_TRAFFIC_PLATFORM: self.coordinator.data[DATA_TRAFFIC][self.num].platform,
-                    ATTR_TRAFFIC_STATUS: self.coordinator.data[DATA_TRAFFIC][self.num].status,
+                    ATTR_TRAFFIC_DETAILS: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].note,
+                    ATTR_TRAFFIC_DESTINATION: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].destination_name,
+                    ATTR_TRAFFIC_DIRECTION: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].direction,
+                    ATTR_TRAFFIC_AT_STOP: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].at_stop,
+                    ATTR_TRAFFIC_PLATFORM: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].platform,
+                    ATTR_TRAFFIC_STATUS: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].status,
                 }
             )
         return self._attrs

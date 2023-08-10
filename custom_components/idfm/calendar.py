@@ -9,7 +9,7 @@ from .entity import IDFMEntity
 
 
 async def async_setup_entry(
-    hass,
+    hass: HomeAssistant,
     entry,
     async_add_entities,
 ) -> None:
@@ -41,21 +41,41 @@ class IDFMCalendar(IDFMEntity, CalendarEntity):
 
     @property
     def event(self) -> CalendarEvent | None:
-        if len(self._events) == 0:
-            return None
         lst = []
+        next_ev = None
+        next_ev_t = None
         dt = now()
-        next_ev = self._events[0]
-        for i in self._events:
-            if as_local(i.start) <= dt and dt <= as_local(i.end):
-                lst.append(i)
-            if i.start-dt < next_ev.start-dt:
-                next_ev = i
-        if len(lst) > 0:
-            lst.sort(key=lambda x: x._severity)
-            return lst[0]
-        else:
-            return next_ev
+        if self.coordinator.data is not None:
+            for i in self.coordinator.data[DATA_INFO]:
+                for t in i.periods:
+                    if dt <= as_local(t[1]):
+                        if as_local(t[0]) <= dt:
+                            lst.append(i)
+                        elif next_ev is None or t[0]-dt < next_ev_t[0]-dt:
+                            next_ev = i
+                            next_ev_t = t
+            if len(lst) > 0:
+                t = ()
+                lst.sort(key=lambda x: x.severity)
+                for p in lst[0].periods:
+                    if as_local(p[0]) <= dt and dt <= as_local(p[1]):
+                        t = p
+                return CalendarEvent(
+                    start=t[0],
+                    end=t[1],
+                    summary=lst[0].name or lst[0].message,
+                    description=lst[0].message,
+                    recurrence_id=lst[0].id,
+                )
+            elif next_ev is not None:
+                return CalendarEvent(
+                    start=next_ev_t[0],
+                    end=next_ev_t[1],
+                    summary=next_ev.name or next_ev.message,
+                    description=next_ev.message,
+                    recurrence_id=next_ev.id,
+                )
+        return None
 
     async def async_get_events(
         self, hass: HomeAssistant, start_date: datetime, end_date: datetime

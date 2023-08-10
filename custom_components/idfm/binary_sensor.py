@@ -3,7 +3,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.core import HomeAssistant, callback
 from homeassistant.util.dt import as_local, now
 
 from .const import (
@@ -24,7 +23,7 @@ from .entity import IDFMEntity
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    hass,
     entry,
     async_add_entities,
 ) -> None:
@@ -44,8 +43,6 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator, config_entry)
         self._attrs = {}
-        self.is_on = False
-        self.extra_state_attributes = {}
 
     @property
     def name(self):
@@ -63,8 +60,21 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
         """Return the class of this binary_sensor."""
         return BinarySensorDeviceClass.PROBLEM
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
+    @property
+    def is_on(self):
+        """Return true if the binary_sensor is on."""
+        if self.coordinator.data is not None:
+            dt = now()
+            for i in self.coordinator.data[DATA_INFO]:
+                for t in i.periods:
+                    if as_local(t[0]) <= dt and dt <= as_local(t[1]):
+                        return True
+        return False
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+
         if self.coordinator.data is not None:
             lst = []
             dt = now()
@@ -75,8 +85,6 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                         lst.append(i)
 
             if len(lst) > 0:
-                self.is_on = True
-
                 # sort by severity
                 lst.sort(key=lambda x: x.severity)
                 data = lst[0]
@@ -86,7 +94,7 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                         period = t
                         break
 
-                self.extra_state_attributes.update(
+                self._attrs.update(
                     {
                         ATTR_INFO_DESC: data.message,
                         ATTR_INFO_END_TIME: as_local(period[1]),
@@ -99,9 +107,7 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                     }
                 )
             else:
-                self.is_on = False
-
-                self.extra_state_attributes.update(
+                self._attrs.update(
                     {
                         ATTR_INFO_DESC: "",
                         ATTR_INFO_END_TIME: None,
@@ -113,3 +119,5 @@ class IDFMBinarySensor(IDFMEntity, BinarySensorEntity):
                         ATTR_INFO_EFFECT: "",
                     }
                 )
+
+        return self._attrs

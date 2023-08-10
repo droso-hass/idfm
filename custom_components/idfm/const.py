@@ -10,12 +10,6 @@ ISSUE_URL = "https://github.com/droso-hass/idfm/issues"
 # Icons
 ICON = "mdi:train"
 
-# Platforms
-BINARY_SENSOR = "binary_sensor"
-SENSOR = "sensor"
-PLATFORMS = [BINARY_SENSOR, SENSOR]
-
-
 # Configuration and options
 CONF_TOKEN = "api_token"
 CONF_TRANSPORT = "transport_mode"

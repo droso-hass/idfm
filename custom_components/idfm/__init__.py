@@ -6,6 +6,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import Config, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -24,11 +25,11 @@ from .const import (
     DATA_INFO,
     DATA_TRAFFIC,
     DOMAIN,
-    PLATFORMS,
     STARTUP_MESSAGE,
 )
 
 SCAN_INTERVAL = timedelta(minutes=3)
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.CALENDAR, Platform.SENSOR]
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -62,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         stop_area_id=stop_area_id,
         destination=destination,
         direction=direction,
-        exclude_elevators=exclude_elevators
+        exclude_elevators=exclude_elevators,
     )
     await coordinator.async_refresh()
 
@@ -94,7 +95,7 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
         stop_area_id: str,
         direction: str,
         destination: str,
-        exclude_elevators: bool
+        exclude_elevators: bool,
     ) -> None:
         """Initialize."""
         self.api = client
@@ -136,7 +137,9 @@ class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
                     ),
                     key=lambda x: x.schedule,
                 )
-                inf = await self.api.get_line_reports(self.line_id, self.exclude_elevators)
+                inf = await self.api.get_line_reports(
+                    self.line_id, self.exclude_elevators
+                )
                 return {DATA_TRAFFIC: sorted_tr, DATA_INFO: inf}
         except Exception as exception:
             raise UpdateFailed() from exception

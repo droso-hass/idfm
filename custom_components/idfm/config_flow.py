@@ -35,7 +35,6 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._session = ClientSession()
         self._client = None
         self.data = {}
-        Dataset.fetch_data(self._session)
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         """Handle a flow initialized by the user."""

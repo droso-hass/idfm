@@ -6,6 +6,12 @@ Allows to retreive next schedules for a stations on a specific line and traffic 
 
 Based on the [PRIM API](https://prim.iledefrance-mobilites.fr) and the python library [idfm-api](https://github.com/droso-hass/idfm-api).
 
+## Note on line/stop selection
+
+The lines and stops listings are now fetched at the first run of the configuration process (and re-fetched if you restart home-assistant), this will take a few seconds. This means that the datasets are now more up-to-date, which also means that they are subject to changes: some lines/stops might disappear if the traffic is interrupted/replaced by bus, especially for train lines.
+
+**Before opening an issue**, please ensure that you can find your line (with the correct TransportMode) [here](https://data.iledefrance-mobilites.fr/explore/dataset/referentiel-des-lignes/table) (note the ID_Line field) and that there are stops corresponding to this ID_Line (paste it in the search field) [here](https://data.iledefrance-mobilites.fr/explore/dataset/arrets-lignes/table).
+
 ## Configuration
 
 In order to use this integration, you need to create an account on the [PRIM website](https://prim.iledefrance-mobilites.fr) and get your API token [here](https://prim.iledefrance-mobilites.fr/fr/mon-jeton-api).

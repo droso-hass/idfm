@@ -12,12 +12,12 @@ from .const import (
     CONF_DESTINATION,
     CONF_DIRECTION,
     CONF_STOP_NAME,
+    CONF_NB_ENTITIES,
     DATA_TRAFFIC,
     DOMAIN,
     ICON,
 )
 from .entity import IDFMEntity
-
 
 async def async_setup_entry(
     hass,
@@ -27,11 +27,9 @@ async def async_setup_entry(
     """Setup sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        [
-            IDFMTimeSensor(coordinator, entry, 0),
-            IDFMTimeSensor(coordinator, entry, 1),
-            IDFMTimeSensor(coordinator, entry, 2),
-            IDFMTimeSensor(coordinator, entry, 3),
+        [ 
+            IDFMTimeSensor(coordinator, entry, i) 
+            for i in range(entry.data.get(CONF_NB_ENTITIES) or 4)
         ],
         True,
     )

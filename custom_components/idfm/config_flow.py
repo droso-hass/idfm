@@ -18,6 +18,7 @@ from .const import (
     CONF_STOP_NAME,
     CONF_TOKEN,
     CONF_TRANSPORT,
+    CONF_NB_ENTITIES,
     DOMAIN,
 )
 
@@ -44,6 +45,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if CONF_TOKEN in user_input and CONF_EXCLUDE_ELEVATORS in user_input:
             self.data[CONF_TOKEN] = user_input[CONF_TOKEN]
             self.data[CONF_EXCLUDE_ELEVATORS] = user_input[CONF_EXCLUDE_ELEVATORS]
+            self.data[CONF_NB_ENTITIES] = user_input[CONF_NB_ENTITIES]
             self._client = IDFMApi(self._session, user_input[CONF_TOKEN], timeout=300)
             return await self.async_step_transport()
 
@@ -52,6 +54,10 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required(CONF_TOKEN): str,
                 vol.Required(CONF_EXCLUDE_ELEVATORS, default=True): bool,
+                vol.Required(CONF_NB_ENTITIES, default=4): vol.All(
+                    vol.Range(min=1),
+                    vol.Coerce(int)
+                ),
             }),
             errors={},
         )

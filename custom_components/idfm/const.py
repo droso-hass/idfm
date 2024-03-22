@@ -20,6 +20,7 @@ CONF_STOP_NAME = "stop_area_name"
 CONF_DIRECTION = "direction"
 CONF_DESTINATION = "destination"
 CONF_EXCLUDE_ELEVATORS = "exclude_elevator_issues"
+CONF_NB_ENTITIES = "number_time_entities"
 
 DATA_TRAFFIC = "traffic"
 DATA_INFO = "info"

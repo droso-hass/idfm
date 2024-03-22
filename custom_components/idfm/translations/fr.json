@@ -6,7 +6,8 @@
           "description": "Créez un compte sur le site de la plateforme PRIM et récupérez votre token d'API ici:\n\nhttps://prim.iledefrance-mobilites.fr/fr/mon-jeton-api",
           "data": {
             "api_token": "Collez votre token ici",
-            "exclude_elevator_issues": "Exclure les problèmes d'ascenseurs en panne"
+            "exclude_elevator_issues": "Exclure les problèmes d'ascenseurs en panne",
+            "number_time_entities": "Nombre d'entitées pour les horaires"
           }
         },
         "transport": {

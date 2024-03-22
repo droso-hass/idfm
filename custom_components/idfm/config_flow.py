@@ -18,6 +18,7 @@ from .const import (
     CONF_STOP_NAME,
     CONF_TOKEN,
     CONF_TRANSPORT,
+    CONF_NB_ENTITIES,
     DOMAIN,
 )
 
@@ -153,11 +154,7 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 self.data[CONF_DIRECTION] = user_input[CONF_DIRECTION][5:]
             elif user_input[CONF_DIRECTION][0:3] == "Des":
                 self.data[CONF_DESTINATION] = user_input[CONF_DIRECTION][6:]
-
-            return self.async_create_entry(
-                title=self.data[CONF_LINE_NAME] + " - " + self.data[CONF_STOP_NAME],
-                data=self.data,
-            )
+            return await self.async_step_entities()
 
         directions = await self._client.get_directions(
             self.data[CONF_STOP],
@@ -181,6 +178,31 @@ class IDFMFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_DIRECTION,
                         default=user_input.get(CONF_DIRECTION) or directions[0],
                     ): vol.In(sorted(directions))
+                }
+            ),
+            errors={},
+        )
+
+    async def async_step_entities(self, user_input: Optional[Dict[str, Any]] = None):
+        """Fifth step in config flow to select a the number of entities."""
+        if user_input is None:
+            user_input = {}
+
+        if CONF_NB_ENTITIES in user_input:
+            self.data[CONF_NB_ENTITIES] = user_input[CONF_NB_ENTITIES]         
+            return self.async_create_entry(
+                title=self.data[CONF_LINE_NAME] + " - " + self.data[CONF_STOP_NAME],
+                data=self.data,
+            )
+
+        return self.async_show_form(
+            step_id="entities",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_NB_ENTITIES,
+                        default=4,
+                    ): vol.Range(min=1, max=50)
                 }
             ),
             errors={},

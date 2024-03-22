@@ -19,7 +19,6 @@ from .const import (
 )
 from .entity import IDFMEntity
 
-
 async def async_setup_entry(
     hass,
     entry,
@@ -30,7 +29,7 @@ async def async_setup_entry(
     async_add_entities(
         [ 
             IDFMTimeSensor(coordinator, entry, i) 
-            for i in range(coordinator.data[CONF_NB_ENTITIES] or 4)
+            for i in range(entry.data.get(CONF_NB_ENTITIES) or 4)
         ],
         True,
     )

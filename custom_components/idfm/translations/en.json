@@ -6,7 +6,8 @@
         "description": "Create an account on the PRIM platform and get your API token here:\n\nhttps://prim.iledefrance-mobilites.fr/fr/mon-jeton-api",
         "data": {
           "api_token": "Paste your token here",
-          "exclude_elevator_issues": "Exclude elevator issues"
+          "exclude_elevator_issues": "Exclude elevator issues",
+          "number_time_entities": "Number of time entities"
         }
       },
       "transport": {

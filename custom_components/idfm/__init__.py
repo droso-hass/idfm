@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import Config, HomeAssistant
+from homeassistant.core_config import Config, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -72,14 +72,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    entry_setups = []
+
     for platform in PLATFORMS:
         if entry.options.get(platform, True):
             coordinator.platforms.append(platform)
-            hass.async_add_job(
-                hass.config_entries.async_forward_entry_setup(entry, platform)
-            )
+            entry_setups.append((entry, platform))
+
+    if entry_setups:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setups(entry_setups)
+        )
 
     entry.add_update_listener(async_reload_entry)
+
     return True
 
 

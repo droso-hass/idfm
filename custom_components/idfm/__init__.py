@@ -72,22 +72,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    entry_setups = []
+    platforms_to_setup = []
 
     for platform in PLATFORMS:
         if entry.options.get(platform, True):
             coordinator.platforms.append(platform)
-            entry_setups.append((entry, platform))
+            platforms_to_setup.append(platform)
 
-    if entry_setups:
+    if platforms_to_setup:
         hass.async_create_task(
-            hass.config_entries.async_forward_entry_setups(entry_setups)
+            hass.config_entries.async_forward_entry_setups(entry, platforms_to_setup)
         )
 
     entry.add_update_listener(async_reload_entry)
 
     return True
-
 
 class IDFMDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""

@@ -3,7 +3,7 @@
 NAME = "Ile de france mobilités"
 DOMAIN = "idfm"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "2.1.2"
+VERSION = "2.1.3"
 
 ISSUE_URL = "https://github.com/droso-hass/idfm/issues"
 

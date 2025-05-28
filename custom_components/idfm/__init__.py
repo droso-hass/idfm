@@ -80,9 +80,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             platforms_to_setup.append(platform)
 
     if platforms_to_setup:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setups(entry, platforms_to_setup)
-        )
+        await hass.config_entries.async_forward_entry_setups(entry, platforms_to_setup)
 
     entry.add_update_listener(async_reload_entry)
 

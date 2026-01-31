@@ -42,6 +42,8 @@ ATTR_TRAFFIC_AT_STOP = "at_stop"
 ATTR_TRAFFIC_PLATFORM = "platform"
 ATTR_TRAFFIC_STATUS = "status"
 
+LICENSE_URL = "https://data.iledefrance-mobilites.fr/pages/licences/"
+ATTRIBUTION_COMPACT = f"Données © Île-de-France Mobilités — Licences: {LICENSE_URL}"
 
 STARTUP_MESSAGE = f"""
 -------------------------------------------------------------------

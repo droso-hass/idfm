@@ -1,13 +1,6 @@
 """IDFMEntity class"""
+from __future__ import annotations
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from idfm_api.attribution import (
-    IDFM_API_LICENCE,
-    IDFM_API_LICENCE_LINK,
-    IDFM_API_LINK,
-    IDFM_DB_LICENCE,
-    IDFM_DB_LICENCE_LINK,
-    IDFM_DB_SOURCES,
-)
 
 from .const import (
     CONF_DIRECTION,
@@ -18,13 +11,22 @@ from .const import (
     DOMAIN,
     NAME,
     VERSION,
+    ATTRIBUTION_COMPACT,
+    LICENSE_URL,
 )
 
 
 class IDFMEntity(CoordinatorEntity):
+    """Base entity for the IDFM integration."""
+    _attr_attribution = ATTRIBUTION_COMPACT
+    _attr_has_entity_name = True
+    
     def __init__(self, coordinator, config_entry):
         super().__init__(coordinator)
         self.config_entry = config_entry
+        self._attr_extra_state_attributes = {
+            "integration": DOMAIN,
+        }
 
     @property
     def unique_id(self):
@@ -33,13 +35,13 @@ class IDFMEntity(CoordinatorEntity):
 
     @property
     def device_info(self):
-        id = (
+        dev_id = (
             self.config_entry.data[CONF_LINE]
             + self.config_entry.data[CONF_STOP]
             + (self.config_entry.data[CONF_DIRECTION] or "any")
         )
         return {
-            "identifiers": {(DOMAIN, id)},
+            "identifiers": {(DOMAIN, dev_id)},
             "name": self.config_entry.data[CONF_LINE_NAME]
             + " - "
             + self.config_entry.data[CONF_STOP_NAME]
@@ -47,18 +49,6 @@ class IDFMEntity(CoordinatorEntity):
             + (self.config_entry.data[CONF_DIRECTION] or "any"),
             "model": VERSION,
             "manufacturer": NAME,
+            "configuration_url": LICENSE_URL,
         }
 
-    @property
-    def attribution(self) -> str:
-        """Return the attribution."""
-        static = "[" + ", ".join(IDFM_DB_SOURCES.values()) + "]"
-        return f"Static Data: {static} under {IDFM_DB_LICENCE}: {IDFM_DB_LICENCE_LINK} - API provided by PRIM: {IDFM_API_LINK} under {IDFM_API_LICENCE}: {IDFM_API_LICENCE_LINK}"
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        return {
-            "id": str(self.coordinator.data.get("id")),
-            "integration": DOMAIN,
-        }

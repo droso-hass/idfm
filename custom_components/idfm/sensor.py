@@ -76,6 +76,7 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
             self.coordinator.data[DATA_TRAFFIC]
         ):
             return as_local(self.coordinator.data[DATA_TRAFFIC][self.num].schedule)
+        return None
 
     @property
     def icon(self):

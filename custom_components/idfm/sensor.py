@@ -9,6 +9,7 @@ from .const import (
     ATTR_TRAFFIC_DIRECTION,
     ATTR_TRAFFIC_PLATFORM,
     ATTR_TRAFFIC_STATUS,
+    ATTR_TRAFFIC_VEHICLE_FEATURES,
     CONF_DESTINATION,
     CONF_DIRECTION,
     CONF_STOP_NAME,
@@ -113,6 +114,9 @@ class IDFMTimeSensor(IDFMEntity, SensorEntity):
                     ATTR_TRAFFIC_STATUS: self.coordinator.data[DATA_TRAFFIC][
                         self.num
                     ].status,
+                    ATTR_TRAFFIC_VEHICLE_FEATURES: self.coordinator.data[DATA_TRAFFIC][
+                        self.num
+                    ].vehicle_features,
                 }
             )
         return self._attrs
